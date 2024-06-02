@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata: #any data regarding our pod, tags and labels, and namespace.
+  namespace: web
+  name: nginx-pod
+  labels: 
+    course: atlas-tech
+    name: nginx-pod
+spec: #defining what our container looks like
+  containers: 
+  - name: nginx-container
+    image: nginx:latest
+    resources:
+      limits:
+        memory: "128Mi" #megabytes
+        cpu: "250m"
+    ports:
+    - containerPort: 80

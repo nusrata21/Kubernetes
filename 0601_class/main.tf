@@ -169,9 +169,9 @@ resource "aws_eks_node_group" "tfnodegroup" {
   instance_types  = ["t2.micro"]
   node_group_name = "tfnodegroup"
   scaling_config {
-    desired_size = 2
+    desired_size = 3
     max_size     = 3
-    min_size     = 2
+    min_size     = 1
   }
   depends_on = [
     aws_iam_role_policy_attachment.tfpolicyattach2,

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata: #metadata of our resource
+  name: nginx-daemonset
+  namespace: web
+  labels: 
+    function: mydaemonset
+spec:
+  selector: #we are matching the given label with daemonset.
+    matchLabels:  
+      pod: daemonsetpod #key for daemon set
+  template: #pod configuration 
+    metadata: #pod templates metadata; we are giving it a label - this is the label daemon set will look for
+      labels:
+        pod: daemonsetpod #selector look out for this value - daemon set has to manage this selected key when found.
+    spec:  #pods spec - defining what our container looks like
+      nodeSelector: #chosing which nodes to create these pods in. test passed is their label, and it was added using command
+        test: passed
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "128Mi" #megabytes
+            cpu: "250m"
+        ports:
+        - containerPort: 80
