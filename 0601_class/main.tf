@@ -65,25 +65,12 @@ resource "aws_security_group" "tfsg" {
   vpc_id      = aws_vpc.tfvpc.id
 
   ingress {
-    description = "https"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    description = "ALL"
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
     cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    description = "http"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    description = "ssh"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+
   }
   egress {
     description = "ALL"
@@ -161,6 +148,13 @@ resource "aws_eks_cluster" "tfcluster" {
   depends_on = [aws_iam_role_policy_attachment.tfpolicyattach1]
 }
 
+resource "aws_launch_template" "cluster_lt" {
+  name                   = "cluster_lt"
+  vpc_security_group_ids = [aws_security_group.tfsg.id]
+
+  depends_on = [aws_security_group.tfsg]
+}
+
 resource "aws_eks_node_group" "tfnodegroup" {
   cluster_name    = aws_eks_cluster.tfcluster.name
   node_role_arn   = aws_iam_role.tf_nodegroup_role.arn
@@ -168,6 +162,10 @@ resource "aws_eks_node_group" "tfnodegroup" {
   ami_type        = "AL2_x86_64"
   instance_types  = ["t2.micro"]
   node_group_name = "tfnodegroup"
+  launch_template {
+    id = aws_launch_template.cluster_lt.id
+    version = aws_launch_template.cluster_lt.latest_version
+  }
   scaling_config {
     desired_size = 3
     max_size     = 3
@@ -176,6 +174,7 @@ resource "aws_eks_node_group" "tfnodegroup" {
   depends_on = [
     aws_iam_role_policy_attachment.tfpolicyattach2,
     aws_iam_role_policy_attachment.tfpolicyattach3,
-    aws_iam_role_policy_attachment.tfpolicyattach4
+    aws_iam_role_policy_attachment.tfpolicyattach4,
+    aws_launch_template.cluster_lt
   ]
 }
